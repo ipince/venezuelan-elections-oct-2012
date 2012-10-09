@@ -8,7 +8,7 @@ from lxml import etree
 
 
 def cached_url(url):
-  return "/tmp/" + url.replace("/", "_").replace(":", "_")
+  return os.path.join("cache", url.replace("/", "_").replace(":", "_"))
 
 def parse(url):
   print "Fetching: " + url
