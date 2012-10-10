@@ -57,7 +57,7 @@ def extract_total_votes(tree):
 def extract_votes(tree):
   d1 = extract_candidate_votes(tree)
   d2 = extract_total_votes(tree)
-  return dict(d1.items() + d2.items())
+  return defaultdict(lambda : 'N/A', d1.items() + d2.items())
 
 def write_to_file(votes):
   state_based = ''
@@ -67,13 +67,10 @@ def write_to_file(votes):
   state_centers = {}
   sep = ','
   region_headers = ["Estado", "Municipio", "Parroquia", "Centro"]
-  voting_headers = None
+  voting_headers = votes.items()[0][1]["total"].keys()
   for state in sorted(votes.keys()):
-    if voting_headers is None:
-      # here we take the keys of a known votes map. We assume the order is the same everywhere else.
-      voting_headers = votes[state]["total"].keys()
     if state_based == '': state_based += sep.join(region_headers[:1] + voting_headers) + "\n"
-    state_based += sep.join([state] + votes[state]["total"].values()) + "\n"
+    state_based += sep.join([state] + [votes[state]["total"][v] for v in voting_headers]) + "\n"
     centers_for_state = ''
     for muni in votes[state]:
       if muni == "total":
@@ -95,7 +92,7 @@ def write_to_file(votes):
           center_based += sep.join([state, muni, parish, center] + votes[state][muni][parish][center].values()) + "\n"
           if centers_for_state == '':
             centers_for_state = sep.join(region_headers[:4] + voting_headers) + "\n"
-          centers_for_state += sep.join([state, muni, parish, center] + votes[state][muni][parish][center].values()) + "\n"
+          centers_for_state += sep.join([state, muni, parish, center] + [votes[state][muni][parish][center][v] for v in voting_headers]) + "\n"
     # state is done here.
     state_centers[state.lower().replace("edo.", "").replace(".", "-").replace(" ", "")] = centers_for_state
 
@@ -113,26 +110,27 @@ country_url = url_root + 'reg_000000.html'
 #  {<State> -> {<Muni> -> {<Parish> -> {Center -> {<Candidate> -> <votes>}}}}}
 votes = {}
 
+iterend = 2
 state_links = extract_nav_links(parse(country_url))
-for state_link in itertools.islice(state_links, 0, 1000):
+for state_link in itertools.islice(state_links, 0, iterend):
   print "Processing STATE " + state_link
   state_tree = parse(url_root + state_links[state_link])
   muni_links = extract_nav_links(state_tree)
   muni_dict = defaultdict(dict)
   # muni dict holds details per muni and state totals (which is muni-aggregated totals)
   muni_dict["total"] = extract_votes(state_tree)
-  for muni_link in itertools.islice(muni_links, 0, 1000):
+  for muni_link in itertools.islice(muni_links, 0, iterend):
     print "\tProcessing MUNI " + muni_link
     muni_tree = parse(url_root + muni_links[muni_link])
     parish_links = extract_nav_links(muni_tree)
     muni_dict[muni_link]["total"] = extract_votes(muni_tree)
-    for parish in itertools.islice(parish_links, 0, 1000):
+    for parish in itertools.islice(parish_links, 0, iterend):
       print "\t\tProcessing PARISH " + parish
       parish_tree = parse(url_root + parish_links[parish])
       center_links = extract_nav_links(parish_tree)
       muni_dict[muni_link][parish] =  {}
       muni_dict[muni_link][parish]["total"] = extract_votes(parish_tree)
-      for center in itertools.islice(center_links, 0, 1000):
+      for center in itertools.islice(center_links, 0, iterend):
         print "\t\t\tProcessing CENTER: " + center
         muni_dict[muni_link][parish][center]  = extract_votes(parse(url_root + center_links[center]))
   votes[state_link] = muni_dict
