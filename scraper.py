@@ -65,32 +65,36 @@ def write_to_file(votes):
   parish_based = ''
   center_based = ''
   state_centers = {}
-  headers = ["Estado", "Municipio", "Parroquia", "Centro"]
   sep = ','
-  for state in votes:
-    if state_based == '': state_based += sep.join(headers[:1] + votes[state]["total"].keys()) + "\n"
+  region_headers = ["Estado", "Municipio", "Parroquia", "Centro"]
+  voting_headers = None
+  for state in sorted(votes.keys()):
+    if voting_headers is None:
+      # here we take the keys of a known votes map. We assume the order is the same everywhere else.
+      voting_headers = votes[state]["total"].keys()
+    if state_based == '': state_based += sep.join(region_headers[:1] + voting_headers) + "\n"
     state_based += sep.join([state] + votes[state]["total"].values()) + "\n"
     centers_for_state = ''
     for muni in votes[state]:
       if muni == "total":
         continue
       if muni_based == '':
-        muni_based += sep.join(headers[:2] + votes[state][muni]["total"].keys()) + "\n"
+        muni_based += sep.join(region_headers[:2] + voting_headers) + "\n"
       muni_based += sep.join([state, muni] + votes[state][muni]["total"].values()) + "\n"
       for parish in votes[state][muni]:
         if parish == "total":
           continue
         if parish_based == '':
-          parish_based += sep.join(headers[:3] + votes[state][muni][parish]["total"].keys()) + "\n"
+          parish_based += sep.join(region_headers[:3] + voting_headers) + "\n"
         parish_based += sep.join([state, muni, parish] + votes[state][muni][parish]["total"].values()) + "\n"
         for center in votes[state][muni][parish]:
           if center == "total":
             continue
           if center_based == '':
-            center_based += sep.join(headers[:4] + votes[state][muni][parish][center].keys()) + "\n"
+            center_based += sep.join(region_headers[:4] + voting_headers) + "\n"
           center_based += sep.join([state, muni, parish, center] + votes[state][muni][parish][center].values()) + "\n"
           if centers_for_state == '':
-            centers_for_state += sep.join(headers[:4] + votes[state][muni][parish][center].keys()) + "\n"
+            centers_for_state = sep.join(region_headers[:4] + voting_headers) + "\n"
           centers_for_state += sep.join([state, muni, parish, center] + votes[state][muni][parish][center].values()) + "\n"
     # state is done here.
     state_centers[state.lower().replace("edo.", "").replace(".", "-").replace(" ", "")] = centers_for_state
