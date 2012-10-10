@@ -65,30 +65,31 @@ def write_to_file(votes):
   parish_based = ''
   center_based = ''
   state_centers = {}
+  headers = ["Estado", "Municipio", "Parroquia", "Centro"]
   for state in votes:
-    if state_based == '': state_based += ",".join(["Estado"] + votes[state]["total"].keys()) + "\n"
+    if state_based == '': state_based += ",".join(headers[:1] + votes[state]["total"].keys()) + "\n"
     state_based += ",".join([state] + votes[state]["total"].values()) + "\n"
     centers_for_state = ''
     for muni in votes[state]:
       if muni == "total":
         continue
       if muni_based == '':
-        muni_based += ",".join(["Estado", "Municipio"] + votes[state][muni]["total"].keys()) + "\n"
+        muni_based += ",".join(headers[:2] + votes[state][muni]["total"].keys()) + "\n"
       muni_based += ",".join([state, muni] + votes[state][muni]["total"].values()) + "\n"
       for parish in votes[state][muni]:
         if parish == "total":
           continue
         if parish_based == '':
-          parish_based += ",".join(["Estado", "Municipio", "Parroquia"] + votes[state][muni][parish]["total"].keys()) + "\n"
+          parish_based += ",".join(headers[:3] + votes[state][muni][parish]["total"].keys()) + "\n"
         parish_based += ",".join([state, muni, parish] + votes[state][muni][parish]["total"].values()) + "\n"
         for center in votes[state][muni][parish]:
           if center == "total":
             continue
           if center_based == '':
-            center_based += ",".join(["Estado", "Municipio", "Parroquia", "Centro"] + votes[state][muni][parish][center].keys()) + "\n"
+            center_based += ",".join(headers[:4] + votes[state][muni][parish][center].keys()) + "\n"
           center_based += ",".join([state, muni, parish, center] + votes[state][muni][parish][center].values()) + "\n"
           if centers_for_state == '':
-            centers_for_state += ",".join(["Estado", "Municipio", "Parroquia", "Centro"] + votes[state][muni][parish][center].keys()) + "\n"
+            centers_for_state += ",".join(headers[:4] + votes[state][muni][parish][center].keys()) + "\n"
           centers_for_state += ",".join([state, muni, parish, center] + votes[state][muni][parish][center].values()) + "\n"
     # state is done here.
     state_centers[state.lower().replace("edo.", "").replace(".", "-").replace(" ", "")] = centers_for_state
