@@ -67,7 +67,9 @@ def write_to_file(votes):
   state_centers = {}
   sep = ','
   region_headers = ["Estado", "Municipio", "Parroquia", "Centro"]
-  voting_headers = votes.items()[0][1]["total"].keys()
+  # hack: reoder the elements in the headers (I know the order, so this is kind of arbitrary):
+  reorder = [10, 0, 13, 3, 5, 2, 9, 1, 6, 11, 8, 7, 12, 4]
+  voting_headers = [votes.items()[0][1]["total"].keys()[r] for r in reorder]
   for state in sorted(votes.keys()):
     if state_based == '': state_based += sep.join(region_headers[:1] + voting_headers) + "\n"
     state_based += sep.join([state] + [votes[state]["total"][v] for v in voting_headers]) + "\n"
@@ -77,19 +79,19 @@ def write_to_file(votes):
         continue
       if muni_based == '':
         muni_based += sep.join(region_headers[:2] + voting_headers) + "\n"
-      muni_based += sep.join([state, muni] + votes[state][muni]["total"].values()) + "\n"
+      muni_based += sep.join([state, muni] + [votes[state][muni]["total"][v] for v in voting_headers]) + "\n"
       for parish in votes[state][muni]:
         if parish == "total":
           continue
         if parish_based == '':
           parish_based += sep.join(region_headers[:3] + voting_headers) + "\n"
-        parish_based += sep.join([state, muni, parish] + votes[state][muni][parish]["total"].values()) + "\n"
+        parish_based += sep.join([state, muni, parish] + [votes[state][muni][parish]["total"][v] for v in voting_headers]) + "\n"
         for center in votes[state][muni][parish]:
           if center == "total":
             continue
           if center_based == '':
             center_based += sep.join(region_headers[:4] + voting_headers) + "\n"
-          center_based += sep.join([state, muni, parish, center] + votes[state][muni][parish][center].values()) + "\n"
+          center_based += sep.join([state, muni, parish, center] + [votes[state][muni][parish][center][v] for v in voting_headers]) + "\n"
           if centers_for_state == '':
             centers_for_state = sep.join(region_headers[:4] + voting_headers) + "\n"
           centers_for_state += sep.join([state, muni, parish, center] + [votes[state][muni][parish][center][v] for v in voting_headers]) + "\n"
@@ -110,7 +112,7 @@ country_url = url_root + 'reg_000000.html'
 #  {<State> -> {<Muni> -> {<Parish> -> {Center -> {<Candidate> -> <votes>}}}}}
 votes = {}
 
-iterend = 2
+iterend = 1000
 state_links = extract_nav_links(parse(country_url))
 for state_link in itertools.islice(state_links, 0, iterend):
   print "Processing STATE " + state_link
