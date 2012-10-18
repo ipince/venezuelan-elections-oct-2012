@@ -11,7 +11,7 @@ from lxml import etree
 
 import db
 
-db = db.DB('venedb_test')
+#db = db.DB('venedb_test')
 #db.create_tables()
 
 #db.save_person(123, full_name='test name', second_name='ipi')
