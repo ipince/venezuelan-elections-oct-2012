@@ -11,9 +11,19 @@ from lxml import etree
 
 import db
 
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-m", "--millions", dest="millions", type="int")
+parser.add_option("-b", "--beg", dest="beginning", type="int")
+parser.add_option("-e", "--end", dest="end", type="int")
+(options, args) = parser.parse_args()
+
+if options.millions is None or options.beginning is None or options.end is None:
+  parser.error("-m, -b, and -e must be specified")
+
 #db = db.DB('venedb_test')
 #db.create_tables()
-
 #db.save_person(123, full_name='test name', second_name='ipi')
 
 def cached_url(url, cedula):
@@ -54,8 +64,8 @@ thousands = range(0, 1000)
 tmp = range(0, 1000)
 #random.shuffle(tmp)
 
-for thou in range(31, 40):
+for thou in range(options.beginning, options.end):
   for c in tmp:
-    cedula = int(str(15) + str(thou).zfill(3) + str(c).zfill(3))
+    cedula = int(str(options.millions) + str(thou).zfill(3) + str(c).zfill(3))
     fetch_url(cedula)
 
