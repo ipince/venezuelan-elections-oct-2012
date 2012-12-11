@@ -54,7 +54,7 @@ def fetch_url(cedula):
     print "Took %.2f" % elapsed
     outfile = file(cached, 'w')
     outfile.write(contents)
-    time.sleep(0.25)
+    time.sleep(0.4)
   return etree.HTML(contents)
 
 # Last ID as of 10/11/12 is 27,415,999
