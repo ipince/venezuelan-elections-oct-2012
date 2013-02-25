@@ -1,0 +1,29 @@
+python_preamble:
+- import: base64
+- import: re
+- import: google.appengine.ext.bulkload.transform
+- import: google.appengine.ext.bulkload.bulkloader_wizard
+- import: google.appengine.api.datastore
+- import: google.appengine.api.users
+
+transformers:
+
+- kind: Person
+  connector: csv
+
+  property_map:
+
+    - property: cedula
+      external_name: cedula
+
+    - property: first_name
+      external_name: primer_nombre
+
+    - property: second_name
+      external_name: segundo_nombre
+
+    - property: first_surname
+      external_name: primer_apellido
+
+    - property: second_surname
+      external_name: segundo_apellido
